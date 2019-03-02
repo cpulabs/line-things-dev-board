@@ -690,8 +690,8 @@ Adafruit_NeoPixelライブラリを使用しています。ライブラリを管
 ---
 
 # 回路図
-- [CPU ボード - 回路図](https://git.linecorp.com/LINE-Things/things-original-board/blob/master/schematics/cpu_board/Outputs/schematic.pdf)
-- [マザーボード - 回路図](https://git.linecorp.com/LINE-Things/things-original-board/blob/master/schematics/main_board/Outputs/schematic.pdf)
+- [CPU ボード - 回路図](https://github.com/cpulabs/line-things-dev-board/blob/master/schematics/cpu_board/Outputs/schematic.pdf)
+- [マザーボード - 回路図](https://github.com/cpulabs/line-things-dev-board/blob/master/schematics/main_board/Outputs/schematic.pdf)
 
 ---
 
@@ -787,9 +787,9 @@ Adafruitのページにアップデート方法が記載されています。こ
 https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/updating-the-bootloader
 
 ## 自分で基板を製造したい
-https://git.linecorp.com/ito-takahiro/things_starter_board/tree/master/cpu_board/Outputs/
+`/cpu_board/Outputs/`
 
-https://git.linecorp.com/ito-takahiro/things_starter_board/tree/master/main_board/Outputs/
+`/main_board/Outputs/`
 
 基板製造に必要なガーバーデータがここに格納されています。実装に必要な部品リストはbom_{cpu/main}_board.xlsを使用してください。
 なお、回路図及び基板データはAltium社のCircuit Studioでデザインしています。設計データを変更する場合、Circuit Studioから開いてください。
