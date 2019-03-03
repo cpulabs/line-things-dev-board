@@ -199,10 +199,12 @@ function initializeCardForDevice(device) {
         device.gatt.disconnect();
     });
 
-
     template.querySelector('.setuuid').addEventListener('click', () => {
-        writeAdvertuuid(device, template.querySelector('.uuid').value).catch(e => onScreenLog(`ERROR on writeAdvertuuid(): ${e}\n${e.stack}`));
+
+        writeAdvertuuid(device, template.querySelector('.uuid_text').value).catch(e => onScreenLog(`ERROR on writeAdvertuuid(): ${e}\n${e.stack}`));
     });
+
+
 
     /*
     template.querySelector('.refresh-value').addEventListener('click', () => {
@@ -420,7 +422,7 @@ async function updateLedState(device) {
 
 
 async function writeAdvertuuid(device, uuid) {
-  const tx_uuid = uuid.replace("-", "");
+  const tx_uuid = uuid.replace(/-/g, '');
   let uuid_byte = [];
   let hash = 0;
   for(let i = 0; i < 16; i = i + 1) {
@@ -432,6 +434,7 @@ async function writeAdvertuuid(device, uuid) {
   const command = header.concat(uuid_byte);
 
   onScreenLog('Write new advert UUID to device  : ' + new Uint8Array(command));
+
 
   const characteristic = await getCharacteristic(
         device, USER_SERVICE_UUID, USER_CHARACTERISTIC_WRITE_UUID);
