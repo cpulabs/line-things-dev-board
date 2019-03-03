@@ -205,18 +205,6 @@ function initializeCardForDevice(device) {
     });
 
 
-
-    /*
-    template.querySelector('.refresh-value').addEventListener('click', () => {
-        refreshValues(device).catch(e => onScreenLog(`ERROR on refreshValues(): ${e}\n${e.stack}`);
-    });
-    */
-    /*
-    template.querySelector('.refresh-value').addEventListener('click', () => {
-        updateLedState(device).catch(e => onScreenLog(`ERROR on refreshValues(): ${e}\n${e.stack}`));
-    });
-    */
-
     template.querySelector('.notification-enable').addEventListener('click', () => {
         toggleNotification(device).catch(e => onScreenLog(`ERROR on toggleNotification(): ${e}\n${e.stack}`));
     });
@@ -233,7 +221,6 @@ function initializeCardForDevice(device) {
         tab['aria-controls'] = nav.id;
         nav['aria-labelledby'] = tab.id;
     })
-
 
     // Remove existing same id card
     const oldCardElement = getDeviceCard(device);
@@ -420,7 +407,6 @@ async function updateLedState(device) {
     });
 }
 
-
 async function writeAdvertuuid(device, uuid) {
   const tx_uuid = uuid.replace(/-/g, '');
   let uuid_byte = [];
@@ -435,24 +421,12 @@ async function writeAdvertuuid(device, uuid) {
 
   onScreenLog('Write new advert UUID to device  : ' + new Uint8Array(command));
 
-
   const characteristic = await getCharacteristic(
         device, USER_SERVICE_UUID, USER_CHARACTERISTIC_WRITE_UUID);
   await characteristic.writeValue(new Uint8Array(command)).catch(e => {
       onScreenLog(`Error writing ${characteristic.uuid}: ${e}`);
       throw e;
   });
-}
-
-
-async function writeCharacteristic(characteristic, command) {
-    //document.led_value.led0.checked
-
-    await characteristic.writeValue(new Uint8Array(command)).catch(e => {
-        onScreenLog(`Error writing ${characteristic.uuid}: ${e}`);
-        throw e;
-    });
-    //onScreenLog(`Wrote ${characteristic.uuid}: ${command}`);
 }
 
 
