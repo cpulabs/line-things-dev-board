@@ -1,6 +1,6 @@
 /**
  * Default firmware for LINE Things development board
- * リポジトリの /liff-app にある LIFF と組み合わせて利用
+ * リポジトリの /liff-app/linethings-dev-default にある LIFF と組み合わせて利用
  */
 
 #include <bluefruit.h>
@@ -20,11 +20,6 @@
 #define USER_CHARACTERISTIC_WRITE_UUID "4f2596d7-b3d6-4102-85a2-947b80ab4c6f"
 #define PSDI_SERVICE_UUID "e625601e-9e55-4597-a598-76018a0d293d"
 #define PSDI_CHARACTERISTIC_UUID "26e2b12b-85f0-4f3f-9fdd-91d114270e6e"
-
-/*
-#define SVCHG_SERVICE_UUID "1801"
-#define SVCHG_CHARACTERISTIC_UUID "2A05"
-*/
 
 #define BLE_DEV_NAME "LINE Things dev board"
 
@@ -123,7 +118,7 @@ char nibble2c(char c) {
   return 0;
 }
 
-void bleConfigure() {
+void bleConfigure(int power) {
   // UUID setup
   strUUID2Bytes(PSDI_SERVICE_UUID, blesv_line_uuid);
   strUUID2Bytes(PSDI_CHARACTERISTIC_UUID, blesv_line_product_uuid);
@@ -134,7 +129,8 @@ void bleConfigure() {
   Bluefruit.begin();
   // Set max Tx power
   // Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
-  Bluefruit.setTxPower(0);
+  Bluefruit.setTxPower(power);
+
   // BLE devicename
   Bluefruit.setName(BLE_DEV_NAME);
   Bluefruit.setConnInterval(12, 1600);  // connection interval min=20ms, max=2s
@@ -184,6 +180,7 @@ void bleSetupServiceUser() {
   blesv_user.begin();
 }
 
+
 // Event for connect BLE central
 void bleConnectEvent(uint16_t conn_handle) {
   char central_name[32] = {0};
@@ -191,17 +188,8 @@ void bleConnectEvent(uint16_t conn_handle) {
   Bluefruit.Gap.getPeerAddr(conn_handle, central_addr);
   Bluefruit.Gap.getPeerName(conn_handle, central_name, sizeof(central_name));
 
-  Serial.print("Request from ");
-  Serial.print(central_name);
-  Serial.print("(");
-  Serial.print(central_addr[0]);
-  Serial.print(central_addr[1]);
-  Serial.print(central_addr[2]);
-  Serial.print(central_addr[3]);
-  Serial.print(central_addr[4]);
-  Serial.print(central_addr[5]);
-  Serial.println(")");
-  Serial.println("BLE central connected");
+  Serial.print("Connected from ");
+  Serial.println(central_name);
 }
 
 // Event for disconnect BLE central
@@ -262,15 +250,6 @@ void bleWriteEvent(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t
     g_data_user_write_io14 = (data[18] >> 4) & 1;
     g_data_user_write_io15 = (data[18] >> 3) & 1;
     g_data_user_write_io16 = (data[18] >> 2) & 1;
-
-    Serial.println("Write from central");
-    Serial.println(g_data_user_write_led0);
-    Serial.println(g_data_user_write_led1);
-    Serial.println(g_data_user_write_led2);
-    Serial.println(g_data_user_write_led3);
-    Serial.println(g_data_user_write_buzzer);
-    Serial.println("-------");
-
     g_flag_user_write = 1;
   } else if (cmd == 1) {
     // Write New Advertising UUID
@@ -317,13 +296,12 @@ void configFileWrite(uint8_t binUuid[]) {
   if (file.open(UUID_FILENAME, FILE_WRITE)) {
     file.seek(0);
 
-    Serial.println("Write new UUID : OK");
     for (i = 0; i < 16; i++) {
       file.write(binUuid[i]);
     }
     file.close();
   } else {
-    Serial.println("Failed!");
+    Serial.println("Write UUID : Failed!");
   }
 }
 
@@ -341,6 +319,15 @@ int configFileExist() {
     return -1;
   }
   file.close();
+  return 0;
+}
+
+int compareUuid(uint8_t uuid1[], uint8_t uuid2[]){
+  for (int i = 0; i < 16; i++) {
+    if (uuid1[i] != uuid2[i]) {
+      return -1;
+    }
+  }
   return 0;
 }
 
@@ -418,8 +405,21 @@ void setup() {
   // File.open(UUID_FILENAME, FILE_READ);
   configFileRead();
 
+  // UUIDが初期状態のものであれば出力を最低にする
+  uint8_t uuid128[16];
+  strUUID2Bytes(DEFAULT_ADVERTISE_UUID, uuid128);
+  int cmpUuid = compareUuid(uuid128, blesv_user_uuid);
+
   // BLE の設定
-  bleConfigure();
+  if ( cmpUuid == 0 ){
+    // Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
+    bleConfigure(-40);
+    Serial.println("[Using default advertising packet]");
+    Serial.println("BLE transmitter power : -40dBm");
+  } else {
+    bleConfigure(0);
+    Serial.println("BLE transmitter power : 0dBm");
+  }
   bleSetupServicePsdi();
   bleSetupServiceDevice();
   if (memcmp(blesv_devboard_uuid, blesv_user_uuid, sizeof(blesv_devboard_uuid))) {

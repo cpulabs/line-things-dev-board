@@ -54,11 +54,18 @@ CPUボード単体での仕様です。マザーボードに接続して使用�
 
 # Quick Start
 予め書かれているファームウェアで、LINE Thingsの機能とボード上に搭載されたデバイスの体験をすることができます。
-LINE Things上でモーターを除くすべてのデバイスの状態を取得すること、LEDの制御を行うことができます。
+LINE Things上でモーターを除くすべてのデバイスの状態を取得することや、LEDの制御を行うことができます。
 
 まずはじめにこのボードをLINEで友達登録してください。
 
 ![友達登録](img/line_qr.png)
+
+デバイスの電源を入れ、LINE App の LINE Things から接続することで、 Notify や デバイスへの Write を試すことができます。
+初期状態のファームウェアは出力パワーを最低に設定しています。端末をデバイスに近づけて利用してください。
+
+このファームウェアは Advertising packet の Service UUID を LIFF 上から書き換える機能を持っています。
+この機能は LINE Developers から Service UUID を取得して、LINE Things developers trial の独自デバイスを構築する際に、
+ファームウェアと LIFF を変更することなく独自のデバイスとして使用することを目的とした機能です。よくわからない方はこの機能を使用してないでください。
 
 このファームウェアは予め書き込まれていますが、書き換えたい場合などは `arduino/linethings-dev-default/linethings-dev-default.ino` を使用してください。
 このサンプルでは `things_temp_lib`、`Adafruit SSD1306` と `Adafruit GFX Library` を使用しています。`things_temp_lib` は `library/things_temp_lib` をzipファイルに圧縮して、ライブラリをインクルードからインストールしてください。Adafruitのライブラリは `Adafruit SSD1306` と `Adafruit GFX Library` をライブラリを管理からインストールしてください。
@@ -660,41 +667,6 @@ Adafruit_NeoPixelライブラリを使用しています。ライブラリを管
 * マザーボード基板上の電池のみでは動作しません。外部電源コネクタを使用して給電します。
 * USB電源はパソコンなどから給電すると電圧が不安定になり動作しない場合があります。また流れる電流に注意が必要なのでおすすめしません。
 
-
-## LED Matrix Display
-デジットさんで扱っている32x16ピクセルの[LEDマトリクスディスプレイ](http://eleshop.jp/shop/g/gEB8411/)を駆動してみた例です。
-ライブラリはAdafruitの"Adafruit_GFX"ライブラリを継承して作っているため、OLEDディスプレイと同じように任意の文字や図形を表示することができます。
-
-サンプルコードは `arduino/linethings-dev-ledmatrix/linethings-dev-ledmatrix.ino` を書き込んでください。
-
-マザーボード基板のGPIO端子をLED Matrix Displayの信号線へ接続します。
-
-使用しているLED Matrix Displayはカスケード接続で複数枚接続することが可能ですが、マザーボードから電源を供給する場合使用できるディスプレイ枚数は1枚までです。
-それ以上接続する場合は外部から電源を接続してください。
-
-| GPIOコネクタピン番号 | ピン名称 | ピン番号 | LED Matrix CN1 | LED Matrix CN2 |
-----|----|----|----|----
-| 1 | I/O | 2 | 1 |   |
-| 2 | 5V | - |  | 1, 4, 5 |
-| 3 | I/O | 3 | 2 |  |
-| 4 | 3.3V | - |  |  |
-| 5 | I/O | 4 | 3 |  |
-| 6 | RESET | - |  |  |
-| 7 | I/O | 5 |  | 4 |  |
-| 8 | I/O | 26(SCL) |  |  |
-| 9 | I/O | 12 | 5 |  |
-| 10 | I/O | 25(SDA) |  |  |
-| 11 | I/O | 13 | 6 |  |
-| 12 | I/O | 16 | 8 |  |
-| 13 | I/O | 14 | 9 |  |
-| 14 | I/O | 15 | 10 |  |
-| 15 | I/O | 8(RxD) |  |  |
-| 16 | O | 11(LED-DS3) | 11 |  |
-| 17 | I/O | 6(TxD) |  |  |
-| 18 | O | 7(LED-DS2) | 12  | |
-| 19 | GND |  | 7 |  |
-| 20 | GND |  |  | 2, 3, 6 |
-
 ---
 
 # 回路図
@@ -797,7 +769,7 @@ J-LINKを使うとより高レベルのデバッグや、Arduinoを使用しな�
 ※ 正常にArduino IDEから使用できている場合はこの作業を行わないでください。Bootloaderのバージョンを上げる場合は[Bootloaderの更新方法](#bootloaderの更新方法)を参考にしてください。
 
 ## Bootloaderの更新方法
-Adafruitのページにアップデート方法が記載されています。この通りに行ってください。
+Adafruit のページにアップデート方法が記載されています。この通りに行ってください。
 
 https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/updating-the-bootloader
 
@@ -806,6 +778,6 @@ https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/updating-the-b
 
 `/main_board/Outputs/`
 
-基板製造に必要なガーバーデータがここに格納されています。実装に必要な部品リストはbom_{cpu/main}_board.xlsを使用してください。
-なお、回路図及び基板データはAltium社のCircuit Studioでデザインしています。設計データを変更する場合、Circuit Studioから開いてください。
+基板製造に必要なガーバーデータがここに格納されています。実装に必要な部品リストは bom_{cpu/main}_board.xls を使用してください。
+なお、回路図及び基板データは Altium 社の Circuit Studio でデザインしています。設計データを変更する場合、Circuit Studio から開いてください。
 https://www.altium.com/circuitstudio/
